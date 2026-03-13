@@ -1,0 +1,30 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.backup2
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+.private/
+
+# Runtime state
+.secret_key
+src/.secret_key
+config.json
+logs/
+backups/
+exports/
+
+# Generated app data
+data/database.db
+data/qr_codes/
+src/data/database.db
+src/data/qr_codes/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
