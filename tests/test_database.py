@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import gc
+import os
 import sqlite3
 import sys
 import tempfile
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
 
 import pytest
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import close_all_sessions
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -25,19 +29,37 @@ from core.database import (
 )
 
 
+def _cleanup_sqlite_artifacts(db_path: Path) -> None:
+    close_all_sessions()
+    reset_database_engine()
+    gc.collect()
+
+    for suffix in ("", "-journal", "-wal", "-shm"):
+        candidate = Path(f"{db_path}{suffix}")
+        for attempt in range(5):
+            try:
+                candidate.unlink(missing_ok=True)
+                break
+            except PermissionError:
+                if os.name != "nt" or attempt == 4:
+                    raise
+                time.sleep(0.1)
+                gc.collect()
+
+
 class TestDatabase:
     def setup_method(self):
         self.original_db_path = Config.DB_PATH
-        self.temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-        self.temp_db.close()
-        Config.DB_PATH = Path(self.temp_db.name)
+        self.temp_dir = tempfile.TemporaryDirectory(prefix="qr_access_db_")
+        self.temp_db = Path(self.temp_dir.name) / "test.db"
+        Config.DB_PATH = self.temp_db
         reset_database_engine()
         init_database()
 
     def teardown_method(self):
-        reset_database_engine()
+        _cleanup_sqlite_artifacts(self.temp_db)
+        self.temp_dir.cleanup()
         Config.DB_PATH = self.original_db_path
-        Path(self.temp_db.name).unlink(missing_ok=True)
 
     def test_create_user(self):
         session = get_session()
@@ -107,15 +129,17 @@ class TestDatabase:
     def test_engine_reloads_when_db_path_changes(self):
         first_engine = get_engine()
 
-        second_temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-        second_temp_db.close()
+        second_temp_dir = tempfile.TemporaryDirectory(prefix="qr_access_db_reload_")
+        second_temp_db = Path(second_temp_dir.name) / "test.db"
         try:
-            Config.DB_PATH = Path(second_temp_db.name)
+            Config.DB_PATH = second_temp_db
             second_engine = get_engine()
             assert first_engine is not second_engine
         finally:
-            reset_database_engine()
-            Path(second_temp_db.name).unlink(missing_ok=True)
+            first_engine = None
+            second_engine = None
+            _cleanup_sqlite_artifacts(second_temp_db)
+            second_temp_dir.cleanup()
 
     def test_access_log_requires_existing_user(self):
         session = get_session()
@@ -129,7 +153,7 @@ class TestDatabase:
     def test_init_database_migrates_legacy_access_logs_and_removes_orphans(self):
         reset_database_engine()
 
-        with sqlite3.connect(self.temp_db.name) as connection:
+        with sqlite3.connect(self.temp_db) as connection:
             connection.execute("DROP TABLE IF EXISTS access_logs")
             connection.execute("DROP TABLE IF EXISTS users")
             connection.execute("""
@@ -185,7 +209,7 @@ class TestDatabase:
 
         init_database()
 
-        with sqlite3.connect(self.temp_db.name) as connection:
+        with sqlite3.connect(self.temp_db) as connection:
             fk_rows = connection.execute(
                 "PRAGMA foreign_key_list(access_logs)"
             ).fetchall()

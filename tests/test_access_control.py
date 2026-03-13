@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import gc
+import os
 import sys
 import tempfile
+import time
 import uuid as uuid_lib
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+
+from sqlalchemy.orm import close_all_sessions
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
@@ -22,12 +27,30 @@ from core.database import (
 from core.qr_handler import QRHandler
 
 
+def _cleanup_sqlite_artifacts(db_path: Path) -> None:
+    close_all_sessions()
+    reset_database_engine()
+    gc.collect()
+
+    for suffix in ("", "-journal", "-wal", "-shm"):
+        candidate = Path(f"{db_path}{suffix}")
+        for attempt in range(5):
+            try:
+                candidate.unlink(missing_ok=True)
+                break
+            except PermissionError:
+                if os.name != "nt" or attempt == 4:
+                    raise
+                time.sleep(0.1)
+                gc.collect()
+
+
 class TestAccessControl:
     def setup_method(self):
         self.original_db_path = Config.DB_PATH
-        self.temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
-        self.temp_db.close()
-        Config.DB_PATH = Path(self.temp_db.name)
+        self.temp_dir = tempfile.TemporaryDirectory(prefix="qr_access_control_")
+        self.temp_db = Path(self.temp_dir.name) / "test.db"
+        Config.DB_PATH = self.temp_db
         reset_database_engine()
         init_database()
 
@@ -46,9 +69,10 @@ class TestAccessControl:
         session.close()
 
     def teardown_method(self):
-        reset_database_engine()
+        self.controller = None
+        _cleanup_sqlite_artifacts(self.temp_db)
+        self.temp_dir.cleanup()
         Config.DB_PATH = self.original_db_path
-        Path(self.temp_db.name).unlink(missing_ok=True)
 
     def _create_valid_qr(self, user_uuid: str) -> str:
         payload = QRHandler.build_payload(
