@@ -26,6 +26,7 @@ class TestAccessControl:
     def setup_method(self):
         self.original_db_path = Config.DB_PATH
         self.temp_db = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+        self.temp_db.close()
         Config.DB_PATH = Path(self.temp_db.name)
         reset_database_engine()
         init_database()

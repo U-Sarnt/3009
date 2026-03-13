@@ -18,7 +18,12 @@ from sqlalchemy import (
     create_engine,
     event,
 )
-from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+from sqlalchemy.orm import (
+    close_all_sessions,
+    declarative_base,
+    scoped_session,
+    sessionmaker,
+)
 
 from .config import Config
 
@@ -122,6 +127,8 @@ def _migrate_access_logs_schema(db_path: Path) -> None:
 def reset_database_engine() -> None:
     """Dispose the current engine so tests and tools can swap databases safely."""
     global _engine, _session_factory, _engine_url
+
+    close_all_sessions()
 
     if _session_factory is not None:
         _session_factory.remove()
