@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inicializa la base de datos con usuarios de ejemplo."""
+"""Inicializa la base de datos con datos demo genéricos."""
 
 import sys
 from pathlib import Path
@@ -28,13 +28,13 @@ def main():
     init_database()
     print(f"   ✓ Base de datos creada: {Config.DB_PATH}")
 
-    # Crear usuarios de ejemplo
-    print("\n3. Creando usuarios de ejemplo...")
+    # Crear usuarios demo genéricos
+    print("\n3. Creando usuarios demo genéricos...")
 
     sample_users = [
-        {"name": "Juan Pérez", "email": "juan@example.com"},
-        {"name": "María García", "email": "maria@example.com"},
-        {"name": "Carlos López", "email": "carlos@example.com"},
+        {"name": "Operador 1", "email": "operador1@example.com"},
+        {"name": "Usuario 1", "email": "usuario1@example.com"},
+        {"name": "Visitante 1", "email": "visitante1@example.com"},
     ]
 
     session = get_session()

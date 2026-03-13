@@ -57,7 +57,9 @@ class TestTools:
         session = get_session()
         try:
             user = User(
-                uuid=str(uuid.uuid4()), name="Tools User", email="tools@example.com"
+                uuid=str(uuid.uuid4()),
+                name="Usuario 1",
+                email="usuario1@example.com",
             )
             session.add(user)
             session.flush()
@@ -92,7 +94,7 @@ class TestTools:
         assert result == output_file
         payload = json.loads(output_file.read_text(encoding="utf-8"))
         assert payload["total_records"] == 1
-        assert payload["records"][0]["user"]["email"] == "tools@example.com"
+        assert payload["records"][0]["user"]["email"] == "usuario1@example.com"
 
     def test_backup_create_and_verify(self):
         backup_file = create_backup(include_logs=True)

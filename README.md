@@ -58,7 +58,7 @@ QT_QPA_PLATFORM=offscreen python run.py
 
 ## Tooling / Herramientas
 
-Initialize sample data:
+Initialize generic demo data:
 
 ```bash
 python tools/init_app.py

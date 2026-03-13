@@ -61,8 +61,8 @@ class TestAccessControl:
         session.add(
             User(
                 uuid=self.test_uuid,
-                name="Test User",
-                email="test@example.com",
+                name="Operador 1",
+                email="operador1@example.com",
             )
         )
         session.commit()
@@ -77,8 +77,8 @@ class TestAccessControl:
     def _create_valid_qr(self, user_uuid: str) -> str:
         payload = QRHandler.build_payload(
             user_uuid=user_uuid,
-            name="Test User",
-            email="test@example.com",
+            name="Operador 1",
+            email="operador1@example.com",
         )
         return QRHandler.encode_payload(payload)
 
@@ -87,7 +87,7 @@ class TestAccessControl:
 
         assert result["success"] is True
         assert result["access_type"] == "entry"
-        assert result["user"] == "Test User"
+        assert result["user"] == "Operador 1"
 
     def test_process_invalid_qr(self):
         result = self.controller.process_qr_code("invalid qr data")

@@ -64,25 +64,37 @@ class TestDatabase:
     def test_create_user(self):
         session = get_session()
         session.add(
-            User(uuid=str(uuid.uuid4()), name="Test User", email="test@example.com")
+            User(
+                uuid=str(uuid.uuid4()),
+                name="Usuario 1",
+                email="usuario1@example.com",
+            )
         )
         session.commit()
 
-        saved_user = session.query(User).filter_by(email="test@example.com").first()
+        saved_user = session.query(User).filter_by(email="usuario1@example.com").first()
         assert saved_user is not None
-        assert saved_user.name == "Test User"
+        assert saved_user.name == "Usuario 1"
         assert saved_user.is_active is True
         session.close()
 
     def test_unique_email_constraint(self):
         session = get_session()
         session.add(
-            User(uuid=str(uuid.uuid4()), name="User 1", email="same@example.com")
+            User(
+                uuid=str(uuid.uuid4()),
+                name="Usuario 1",
+                email="duplicado@example.com",
+            )
         )
         session.commit()
 
         session.add(
-            User(uuid=str(uuid.uuid4()), name="User 2", email="same@example.com")
+            User(
+                uuid=str(uuid.uuid4()),
+                name="Usuario 2",
+                email="duplicado@example.com",
+            )
         )
         with pytest.raises(Exception):
             session.commit()
@@ -92,9 +104,13 @@ class TestDatabase:
         session = get_session()
         shared_uuid = str(uuid.uuid4())
 
-        session.add(User(uuid=shared_uuid, name="User 1", email="user1@example.com"))
+        session.add(
+            User(uuid=shared_uuid, name="Usuario 1", email="usuario1@example.com")
+        )
         session.commit()
-        session.add(User(uuid=shared_uuid, name="User 2", email="user2@example.com"))
+        session.add(
+            User(uuid=shared_uuid, name="Usuario 2", email="usuario2@example.com")
+        )
 
         with pytest.raises(Exception):
             session.commit()
@@ -103,7 +119,9 @@ class TestDatabase:
     def test_create_access_log(self):
         session = get_session()
         user_uuid = str(uuid.uuid4())
-        session.add(User(uuid=user_uuid, name="Test User", email="test@example.com"))
+        session.add(
+            User(uuid=user_uuid, name="Operador 1", email="operador1@example.com")
+        )
         session.commit()
 
         session.add(AccessLog(user_uuid=user_uuid, access_type="entry"))
@@ -116,14 +134,18 @@ class TestDatabase:
         session.close()
 
     def test_repr_methods(self):
-        user = User(uuid=str(uuid.uuid4()), name="John Doe", email="john@example.com")
+        user = User(
+            uuid=str(uuid.uuid4()),
+            name="Visitante 1",
+            email="visitante1@example.com",
+        )
         log = AccessLog(
             user_uuid=user.uuid,
             timestamp=datetime(2024, 1, 1, 12, 0, 0),
             access_type="entry",
         )
 
-        assert repr(user) == "<User John Doe>"
+        assert repr(user) == "<User Visitante 1>"
         assert repr(log) == f"<AccessLog {user.uuid} at 2024-01-01 12:00:00>"
 
     def test_engine_reloads_when_db_path_changes(self):
@@ -185,8 +207,8 @@ class TestDatabase:
                 """,
                 (
                     valid_uuid,
-                    "Legacy User",
-                    "legacy@example.com",
+                    "Usuario legado",
+                    "usuario.legado@example.com",
                     1,
                     "2024-01-01 00:00:00",
                 ),

@@ -41,8 +41,8 @@ class TestMainWindow:
         session.add(
             User(
                 uuid=self.user_uuid,
-                name="Qt User",
-                email="qt@example.com",
+                name="Operador 1",
+                email="operador1@example.com",
             )
         )
         session.commit()
@@ -59,13 +59,15 @@ class TestMainWindow:
         window.update_timer.stop()
 
         qr_text = QRHandler.encode_payload(
-            QRHandler.build_payload(self.user_uuid, "Qt User", "qt@example.com")
+            QRHandler.build_payload(
+                self.user_uuid, "Operador 1", "operador1@example.com"
+            )
         )
         window.process_qr(qr_text)
 
-        assert window.status_label.text() == "ENTRY: Qt User"
+        assert window.status_label.text() == "ENTRY: Operador 1"
         assert window.status_label.property("status") == "success"
-        assert "Qt User - ENTRY" in window.last_access_label.text()
+        assert "Operador 1 - ENTRY" in window.last_access_label.text()
 
         window.close()
 

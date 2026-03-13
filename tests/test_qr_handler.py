@@ -13,6 +13,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from core.config import Config
 from core.qr_handler import QRHandler
 
+DEMO_UUID = "00000000-0000-4000-8000-000000000101"
+SECOND_DEMO_UUID = "00000000-0000-4000-8000-000000000102"
+DEMO_NAME = "Usuario 1"
+DEMO_EMAIL = "usuario1@example.com"
+
 
 class TestQRHandler:
     def setup_method(self):
@@ -20,20 +25,20 @@ class TestQRHandler:
 
     def test_validate_qr_valid(self):
         qr_text = QRHandler.encode_payload(
-            QRHandler.build_payload("test-uuid", "Test User", "test@example.com")
+            QRHandler.build_payload(DEMO_UUID, DEMO_NAME, DEMO_EMAIL)
         )
 
         is_valid, payload = QRHandler.validate_qr_data(qr_text)
 
         assert is_valid is True
-        assert payload["uuid"] == "test-uuid"
-        assert payload["name"] == "Test User"
+        assert payload["uuid"] == DEMO_UUID
+        assert payload["name"] == DEMO_NAME
         assert "issued_at" in payload
         assert "expires_at" in payload
 
     def test_validate_qr_invalid_signature(self):
         qr_text = QRHandler.encode_payload(
-            QRHandler.build_payload("test-uuid", "Test User", "test@example.com")
+            QRHandler.build_payload(DEMO_UUID, DEMO_NAME, DEMO_EMAIL)
         )
         payload_b64, signature = qr_text.split(".", 1)
         tampered_signature = ("A" if signature[0] != "A" else "B") + signature[1:]
@@ -53,9 +58,9 @@ class TestQRHandler:
         expired_at = (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()
         qr_text = QRHandler.encode_payload(
             QRHandler.build_payload(
-                "test-uuid",
-                "Test User",
-                "test@example.com",
+                DEMO_UUID,
+                DEMO_NAME,
+                DEMO_EMAIL,
                 expires_at=expired_at,
             )
         )
@@ -68,9 +73,7 @@ class TestQRHandler:
     def test_generate_qr_code_legacy_wrapper(self):
         pytest.importorskip("qrcode")
 
-        qr_path = QRHandler.generate_qr_code(
-            "test-uuid-123", "Test User", "test@example.com"
-        )
+        qr_path = QRHandler.generate_qr_code(SECOND_DEMO_UUID, DEMO_NAME, DEMO_EMAIL)
 
         assert qr_path.exists()
         assert qr_path.suffix == ".png"
