@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -30,11 +31,17 @@ def test_open_in_file_manager_checks_subprocess_result(tmp_path, monkeypatch):
         return CompletedProcess(returncode=0)
 
     monkeypatch.setattr(platform_utils.subprocess, "run", fake_run)
-    monkeypatch.setattr(platform_utils.os, "name", "posix")
-    monkeypatch.setattr(platform_utils.sys, "platform", "linux")
+    monkeypatch.setattr(platform_utils, "_current_os_name", lambda: "posix")
+    monkeypatch.setattr(platform_utils, "_current_sys_platform", lambda: "linux")
 
     assert platform_utils.open_in_file_manager(folder) is True
-    assert calls == [(["xdg-open", str(folder)], False)]
+    assert len(calls) == 1
+    command, check = calls[0]
+    assert check is False
+    assert command[0] == "xdg-open"
+    assert os.path.normcase(os.path.normpath(command[1])) == os.path.normcase(
+        os.path.normpath(str(folder))
+    )
 
 
 def test_open_in_file_manager_returns_false_on_failed_subprocess(tmp_path, monkeypatch):
@@ -50,7 +57,7 @@ def test_open_in_file_manager_returns_false_on_failed_subprocess(tmp_path, monke
         "run",
         lambda command, check: CompletedProcess(returncode=1),
     )
-    monkeypatch.setattr(platform_utils.os, "name", "posix")
-    monkeypatch.setattr(platform_utils.sys, "platform", "linux")
+    monkeypatch.setattr(platform_utils, "_current_os_name", lambda: "posix")
+    monkeypatch.setattr(platform_utils, "_current_sys_platform", lambda: "linux")
 
     assert platform_utils.open_in_file_manager(folder) is False

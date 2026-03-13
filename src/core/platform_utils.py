@@ -18,6 +18,16 @@ def sanitize_filename(value: str, replacement: str = "_") -> str:
     return sanitized or "item"
 
 
+def _current_os_name() -> str:
+    """Return the runtime OS name for platform-specific branches."""
+    return os.name
+
+
+def _current_sys_platform() -> str:
+    """Return the runtime platform string for platform-specific branches."""
+    return sys.platform
+
+
 def open_in_file_manager(target: Union[str, Path]) -> bool:
     """Open a path or its parent folder using the platform file manager."""
     path = Path(target)
@@ -30,13 +40,13 @@ def open_in_file_manager(target: Union[str, Path]) -> bool:
         return False
 
     try:
-        if os.name == "nt":
+        if _current_os_name() == "nt":
             os.startfile(str(folder))
             return True
 
         command = (
             ["open", str(folder)]
-            if sys.platform == "darwin"
+            if _current_sys_platform() == "darwin"
             else ["xdg-open", str(folder)]
         )
         result = subprocess.run(command, check=False)
