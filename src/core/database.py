@@ -24,6 +24,7 @@ from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
 )
+from sqlalchemy.pool import NullPool
 
 from .config import Config
 
@@ -153,6 +154,7 @@ def get_engine():
             db_url,
             echo=Config.DB_ECHO,
             connect_args={"check_same_thread": False},
+            poolclass=NullPool,
             future=True,
         )
         event.listen(_engine, "connect", _enable_sqlite_foreign_keys)
