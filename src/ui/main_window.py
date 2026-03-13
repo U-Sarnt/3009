@@ -79,7 +79,9 @@ class MainWindow(QMainWindow):
         right_panel = QWidget()
         right_layout = QVBoxLayout(right_panel)
 
-        self.brand_label = QLabel(f"{Config.ORGANIZATION_NAME}\nOfficial Project / Proyecto Oficial")
+        self.brand_label = QLabel(
+            f"{Config.ORGANIZATION_NAME}\nOfficial Project / Proyecto Oficial"
+        )
         self.brand_label.setObjectName("brand_label")
         right_layout.addWidget(self.brand_label)
 
@@ -139,7 +141,9 @@ class MainWindow(QMainWindow):
         if self.camera_thread:
             self.camera_thread.stop()
             if not self.camera_thread.wait(5000):
-                QMessageBox.warning(self, "Advertencia", "La camara tardo en detenerse.")
+                QMessageBox.warning(
+                    self, "Advertencia", "La camara tardo en detenerse."
+                )
             self.camera_thread = None
 
         self.camera_label.clear()
@@ -182,12 +186,16 @@ class MainWindow(QMainWindow):
                 f"Accesos registrados: {stats['total_logs']}"
             )
 
-            logs = self.access_controller.get_recent_logs(Config.DEFAULT_RECENT_LOG_LIMIT)
+            logs = self.access_controller.get_recent_logs(
+                Config.DEFAULT_RECENT_LOG_LIMIT
+            )
             self.log_table.setRowCount(len(logs))
 
             for index, log in enumerate(logs):
                 self.log_table.setItem(index, 0, QTableWidgetItem(log["user"]))
-                self.log_table.setItem(index, 1, QTableWidgetItem(log["access_type"].upper()))
+                self.log_table.setItem(
+                    index, 1, QTableWidgetItem(log["access_type"].upper())
+                )
                 self.log_table.setItem(
                     index,
                     2,

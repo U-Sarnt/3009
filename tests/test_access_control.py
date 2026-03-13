@@ -8,13 +8,17 @@ import uuid as uuid_lib
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
-import pytest
-
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from core.access_control import AccessController
 from core.config import Config
-from core.database import AccessLog, User, get_session, init_database, reset_database_engine
+from core.database import (
+    AccessLog,
+    User,
+    get_session,
+    init_database,
+    reset_database_engine,
+)
 from core.qr_handler import QRHandler
 
 
@@ -99,9 +103,9 @@ class TestAccessControl:
     def test_entry_exit_alternation(self):
         qr_data = self._create_valid_qr(self.test_uuid)
         first = self.controller.process_qr_code(qr_data)
-        self.controller.last_access[self.test_uuid] = datetime.now(UTC).replace(tzinfo=None) - timedelta(
-            seconds=Config.ACCESS_COOLDOWN_SECONDS + 1
-        )
+        self.controller.last_access[self.test_uuid] = datetime.now(UTC).replace(
+            tzinfo=None
+        ) - timedelta(seconds=Config.ACCESS_COOLDOWN_SECONDS + 1)
         second = self.controller.process_qr_code(qr_data)
 
         assert first["access_type"] == "entry"

@@ -66,7 +66,9 @@ class TestQRHandler:
     def test_generate_qr_code_legacy_wrapper(self):
         pytest.importorskip("qrcode")
 
-        qr_path = QRHandler.generate_qr_code("test-uuid-123", "Test User", "test@example.com")
+        qr_path = QRHandler.generate_qr_code(
+            "test-uuid-123", "Test User", "test@example.com"
+        )
 
         assert qr_path.exists()
         assert qr_path.suffix == ".png"

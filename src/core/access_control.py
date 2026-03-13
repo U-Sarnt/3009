@@ -124,7 +124,9 @@ class AccessController:
                 .order_by(AccessLog.timestamp.desc())
                 .first()
             )
-            access_type = "entry" if not last_log or last_log.access_type == "exit" else "exit"
+            access_type = (
+                "entry" if not last_log or last_log.access_type == "exit" else "exit"
+            )
 
             session.add(AccessLog(user_uuid=user["uuid"], access_type=access_type))
             session.commit()
@@ -181,7 +183,11 @@ class AccessController:
         try:
             total_users = session.query(User).count()
             active_users = session.query(User).filter_by(is_active=True).count()
-            total_logs = session.query(AccessLog).count()
+            total_logs = (
+                session.query(AccessLog)
+                .join(User, User.uuid == AccessLog.user_uuid)
+                .count()
+            )
             return {
                 "total_users": total_users,
                 "active_users": active_users,

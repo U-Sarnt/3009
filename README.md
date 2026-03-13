@@ -1,30 +1,44 @@
 # U-Sarnt QR Access Control
 
-Official repository of **U-Sarnt** for the `3009` project.
+Official repository of **U-Sarnt** for project `3009`.
 
 Repositorio oficial de **U-Sarnt** para el proyecto `3009`.
 
-## Ownership / Propiedad
+## Overview / Descripción
 
-- This project, its branding, documentation and source code are identified as a U-Sarnt project.
-- Este proyecto, su identidad visual, su documentación y su código fuente están identificados como un proyecto de U-Sarnt.
+Desktop access-control system based on signed QR credentials, with:
 
-More details:
+- PySide6 desktop interface
+- OpenCV camera capture and QR scanning
+- SQLite persistence through SQLAlchemy
+- Administrative user management
+- Audit log export and backup tooling
 
-- English: [`docs/README.en.md`](docs/README.en.md)
-- Español: [`docs/README.es.md`](docs/README.es.md)
-- Ownership notice: [`NOTICE.md`](NOTICE.md)
+Sistema de control de acceso de escritorio basado en credenciales QR firmadas, con:
 
-## Summary / Resumen
+- interfaz de escritorio en PySide6
+- captura de cámara y escaneo QR con OpenCV
+- persistencia SQLite mediante SQLAlchemy
+- administración de usuarios
+- exportación de bitácoras y herramientas de backup
 
-- Signed QR-based desktop access control.
-- Control de acceso de escritorio basado en códigos QR firmados.
+## Core Features / Funcionalidades
 
-- PySide6 interface, OpenCV camera capture, SQLite audit logs and admin tooling.
-- Interfaz con PySide6, captura de cámara con OpenCV, bitácora SQLite y herramientas administrativas.
+- Signed QR payloads using HMAC-SHA256
+- Automatic `entry` / `exit` alternation per user
+- Active / inactive user management from the admin panel
+- Recent-access dashboard and access statistics
+- QR generation utilities for registered users
+- Backup and log export tools for operators
 
-- Compatible project structure for Windows, Linux and macOS.
-- Estructura preparada para Windows, Linux y macOS.
+## Stack
+
+- Python 3.9+
+- PySide6
+- OpenCV
+- SQLAlchemy
+- qrcode + Pillow
+- pytest / black / flake8
 
 ## Quick Start / Inicio Rápido
 
@@ -36,10 +50,67 @@ pytest -q
 python run.py
 ```
 
+For headless validation:
+
+```bash
+QT_QPA_PLATFORM=offscreen python run.py
+```
+
+## Tooling / Herramientas
+
+Initialize sample data:
+
+```bash
+python tools/init_app.py
+```
+
+List users and generate a QR for an existing user:
+
+```bash
+python tools/generate_qr.py --list
+python tools/generate_qr.py <user_uuid>
+```
+
+Export access logs:
+
+```bash
+python tools/export_logs.py --month -f json
+```
+
+Create, list and verify backups:
+
+```bash
+python tools/backup_db.py create
+python tools/backup_db.py list
+python tools/backup_db.py verify <backup.zip>
+```
+
+## Development Checks / Validaciones
+
+```bash
+python tools/check_format.py
+flake8 src tests tools run.py
+pytest -q
+```
+
+CI is configured in [`.github/workflows/ci.yml`](.github/workflows/ci.yml) and runs on Linux, Windows and macOS.
+
 ## Repository Notes / Notas del Repositorio
 
-- GitHub CI is configured in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
-- La integración continua para GitHub está configurada en [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+- Runtime artifacts, local databases, generated QR files, secrets and backups are excluded through [`.gitignore`](.gitignore).
+- Documentation is available in English and Spanish.
+- The project supports both legacy and current local data layouts.
 
-- Runtime artifacts and secrets are excluded through [`.gitignore`](.gitignore).
-- Los artefactos de ejecución y secretos están excluidos mediante [`.gitignore`](.gitignore).
+## Documentation
+
+- English: [`docs/README.en.md`](docs/README.en.md)
+- Español: [`docs/README.es.md`](docs/README.es.md)
+- Ownership notice: [`NOTICE.md`](NOTICE.md)
+- Contribution policy: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- Security policy: [`SECURITY.md`](SECURITY.md)
+
+## License / Licencia
+
+This repository is published under the proprietary terms described in [`LICENSE`](LICENSE).
+
+Este repositorio se publica bajo los términos propietarios descritos en [`LICENSE`](LICENSE).

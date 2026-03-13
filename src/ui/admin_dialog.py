@@ -43,7 +43,9 @@ class QRPreviewDialog(QDialog):
 
         title = QLabel(f"QR para: {user_name}")
         title.setAlignment(Qt.AlignCenter)
-        title.setStyleSheet("font-size: 14pt; font-weight: bold; color: #ff6b35; padding: 10px;")
+        title.setStyleSheet(
+            "font-size: 14pt; font-weight: bold; color: #ff6b35; padding: 10px;"
+        )
         layout.addWidget(title)
 
         qr_label = QLabel()
@@ -52,7 +54,9 @@ class QRPreviewDialog(QDialog):
         qr_label.setPixmap(
             pixmap.scaled(350, 350, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         )
-        qr_label.setStyleSheet("background-color: white; padding: 20px; border-radius: 8px;")
+        qr_label.setStyleSheet(
+            "background-color: white; padding: 20px; border-radius: 8px;"
+        )
         layout.addWidget(qr_label)
 
         path_label = QLabel(f"Guardado en:\n{qr_path}")
@@ -88,7 +92,9 @@ class AdminDialog(QDialog):
 
         layout = QVBoxLayout(self)
 
-        brand_label = QLabel(f"{Config.ORGANIZATION_NAME} | Official Administration Panel")
+        brand_label = QLabel(
+            f"{Config.ORGANIZATION_NAME} | Official Administration Panel"
+        )
         brand_label.setObjectName("brand_label")
         layout.addWidget(brand_label)
 
@@ -236,7 +242,9 @@ class AdminDialog(QDialog):
     def toggle_user_active(self) -> None:
         user_id = self._selected_user_id()
         if user_id is None:
-            QMessageBox.warning(self, "Selecciona un usuario", "Selecciona un usuario de la lista.")
+            QMessageBox.warning(
+                self, "Selecciona un usuario", "Selecciona un usuario de la lista."
+            )
             return
 
         session = get_session()
@@ -253,7 +261,9 @@ class AdminDialog(QDialog):
 
             self.load_users()
             status = "activado" if user.is_active else "desactivado"
-            QMessageBox.information(self, "Estado actualizado", f"Usuario {user.name} {status}.")
+            QMessageBox.information(
+                self, "Estado actualizado", f"Usuario {user.name} {status}."
+            )
         except Exception as exc:
             session.rollback()
             QMessageBox.critical(self, "Error", f"Error al cambiar estado:\n{exc}")
@@ -264,7 +274,9 @@ class AdminDialog(QDialog):
     def generate_selected_qr(self) -> None:
         user_id = self._selected_user_id()
         if user_id is None:
-            QMessageBox.warning(self, "Selecciona un usuario", "Selecciona un usuario de la lista.")
+            QMessageBox.warning(
+                self, "Selecciona un usuario", "Selecciona un usuario de la lista."
+            )
             return
 
         session = get_session()
@@ -290,7 +302,9 @@ class AdminDialog(QDialog):
     def delete_access_log(self) -> None:
         user_id = self._selected_user_id()
         if user_id is None:
-            QMessageBox.warning(self, "Selecciona un usuario", "Selecciona un usuario de la lista.")
+            QMessageBox.warning(
+                self, "Selecciona un usuario", "Selecciona un usuario de la lista."
+            )
             return
 
         session = get_session()
@@ -309,7 +323,9 @@ class AdminDialog(QDialog):
             )
 
             if not logs:
-                QMessageBox.information(self, "Sin registros", f"No hay registros para {user.name}.")
+                QMessageBox.information(
+                    self, "Sin registros", f"No hay registros para {user.name}."
+                )
                 return
 
             dialog = QDialog(self)
@@ -322,7 +338,9 @@ class AdminDialog(QDialog):
             log_list = QListWidget()
             for log in logs:
                 time_str = log.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-                log_list.addItem(f"ID: {log.id} | {log.access_type.upper()} | {time_str}")
+                log_list.addItem(
+                    f"ID: {log.id} | {log.access_type.upper()} | {time_str}"
+                )
             layout.addWidget(log_list)
 
             actions = QHBoxLayout()
@@ -338,7 +356,9 @@ class AdminDialog(QDialog):
             def delete_selected() -> None:
                 selected = log_list.currentItem()
                 if not selected:
-                    QMessageBox.warning(dialog, "Selecciona un registro", "Selecciona un registro.")
+                    QMessageBox.warning(
+                        dialog, "Selecciona un registro", "Selecciona un registro."
+                    )
                     return
 
                 log_id = int(selected.text().split("|")[0].replace("ID:", "").strip())
@@ -356,7 +376,9 @@ class AdminDialog(QDialog):
                 if log_to_delete:
                     session.delete(log_to_delete)
                     session.commit()
-                    QMessageBox.information(dialog, "Exito", "Registro eliminado correctamente.")
+                    QMessageBox.information(
+                        dialog, "Exito", "Registro eliminado correctamente."
+                    )
                     dialog.accept()
 
             delete_button.clicked.connect(delete_selected)

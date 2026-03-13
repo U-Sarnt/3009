@@ -16,6 +16,8 @@ If you want to propose a change:
 
 Before submitting:
 
+- run `python tools/check_format.py`
+- run `flake8 src tests tools run.py`
 - run `pytest -q`
 - keep documentation in both Spanish and English when relevant
 - update docs if user-facing behavior changes
@@ -36,6 +38,8 @@ Si quieres proponer un cambio:
 
 Antes de enviar cambios:
 
+- ejecuta `python tools/check_format.py`
+- ejecuta `flake8 src tests tools run.py`
 - ejecuta `pytest -q`
 - mantén documentación tanto en español como en inglés cuando aplique
 - actualiza la documentación si cambia el comportamiento visible del sistema

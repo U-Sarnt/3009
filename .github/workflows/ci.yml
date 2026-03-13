@@ -32,3 +32,9 @@ jobs:
         env:
           QT_QPA_PLATFORM: offscreen
         run: pytest -q
+
+      - name: Check formatting
+        run: python tools/check_format.py
+
+      - name: Run lint
+        run: flake8 src tests tools run.py

@@ -38,7 +38,11 @@ def open_video_capture(index: int = 0) -> Optional[cv2.VideoCapture]:
     """Open a camera using the best backend available for the host OS."""
     for backend in _backend_candidates():
         try:
-            capture = cv2.VideoCapture(index, backend) if backend is not None else cv2.VideoCapture(index)
+            capture = (
+                cv2.VideoCapture(index, backend)
+                if backend is not None
+                else cv2.VideoCapture(index)
+            )
             if capture is not None and capture.isOpened():
                 return capture
             if capture is not None:

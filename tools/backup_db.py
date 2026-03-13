@@ -84,7 +84,10 @@ def create_backup(backup_dir=None, include_logs: bool = True):
             session = get_session()
             try:
                 handle.write(f"Usuarios: {session.query(User).count()}\n")
-                handle.write(f"Usuarios activos: {session.query(User).filter_by(is_active=True).count()}\n")
+                handle.write(
+                    "Usuarios activos: "
+                    f"{session.query(User).filter_by(is_active=True).count()}\n"
+                )
                 handle.write(f"Accesos: {session.query(AccessLog).count()}\n")
             finally:
                 session.close()
@@ -111,7 +114,9 @@ def create_backup(backup_dir=None, include_logs: bool = True):
 
 def cleanup_old_backups(backup_dir: Path, max_backups: int = 10) -> None:
     """Keep only the most recent backup archives."""
-    backups = sorted(backup_dir.glob("backup_*.zip"), key=lambda item: item.stat().st_mtime)
+    backups = sorted(
+        backup_dir.glob("backup_*.zip"), key=lambda item: item.stat().st_mtime
+    )
     for old_backup in backups[:-max_backups]:
         old_backup.unlink(missing_ok=True)
 

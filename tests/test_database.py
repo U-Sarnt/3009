@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sqlite3
 import sys
 import tempfile
 import uuid
@@ -9,11 +10,19 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from core.config import Config
-from core.database import AccessLog, User, get_engine, get_session, init_database, reset_database_engine
+from core.database import (
+    AccessLog,
+    User,
+    get_engine,
+    get_session,
+    init_database,
+    reset_database_engine,
+)
 
 
 class TestDatabase:
@@ -31,7 +40,9 @@ class TestDatabase:
 
     def test_create_user(self):
         session = get_session()
-        session.add(User(uuid=str(uuid.uuid4()), name="Test User", email="test@example.com"))
+        session.add(
+            User(uuid=str(uuid.uuid4()), name="Test User", email="test@example.com")
+        )
         session.commit()
 
         saved_user = session.query(User).filter_by(email="test@example.com").first()
@@ -42,10 +53,14 @@ class TestDatabase:
 
     def test_unique_email_constraint(self):
         session = get_session()
-        session.add(User(uuid=str(uuid.uuid4()), name="User 1", email="same@example.com"))
+        session.add(
+            User(uuid=str(uuid.uuid4()), name="User 1", email="same@example.com")
+        )
         session.commit()
 
-        session.add(User(uuid=str(uuid.uuid4()), name="User 2", email="same@example.com"))
+        session.add(
+            User(uuid=str(uuid.uuid4()), name="User 2", email="same@example.com")
+        )
         with pytest.raises(Exception):
             session.commit()
         session.close()
@@ -79,7 +94,11 @@ class TestDatabase:
 
     def test_repr_methods(self):
         user = User(uuid=str(uuid.uuid4()), name="John Doe", email="john@example.com")
-        log = AccessLog(user_uuid=user.uuid, timestamp=datetime(2024, 1, 1, 12, 0, 0), access_type="entry")
+        log = AccessLog(
+            user_uuid=user.uuid,
+            timestamp=datetime(2024, 1, 1, 12, 0, 0),
+            access_type="entry",
+        )
 
         assert repr(user) == "<User John Doe>"
         assert repr(log) == f"<AccessLog {user.uuid} at 2024-01-01 12:00:00>"
@@ -95,3 +114,85 @@ class TestDatabase:
         finally:
             reset_database_engine()
             Path(second_temp_db.name).unlink(missing_ok=True)
+
+    def test_access_log_requires_existing_user(self):
+        session = get_session()
+        session.add(AccessLog(user_uuid=str(uuid.uuid4()), access_type="entry"))
+
+        with pytest.raises(IntegrityError):
+            session.commit()
+
+        session.close()
+
+    def test_init_database_migrates_legacy_access_logs_and_removes_orphans(self):
+        reset_database_engine()
+
+        with sqlite3.connect(self.temp_db.name) as connection:
+            connection.execute("DROP TABLE IF EXISTS access_logs")
+            connection.execute("DROP TABLE IF EXISTS users")
+            connection.execute("""
+                CREATE TABLE users (
+                    id INTEGER NOT NULL PRIMARY KEY,
+                    uuid VARCHAR(36) NOT NULL UNIQUE,
+                    name VARCHAR(100) NOT NULL,
+                    email VARCHAR(100) NOT NULL UNIQUE,
+                    is_active BOOLEAN NOT NULL,
+                    created_at DATETIME NOT NULL
+                )
+                """)
+            connection.execute("""
+                CREATE TABLE access_logs (
+                    id INTEGER NOT NULL PRIMARY KEY,
+                    user_uuid VARCHAR(36) NOT NULL,
+                    access_type VARCHAR(10) NOT NULL,
+                    timestamp DATETIME NOT NULL,
+                    CONSTRAINT ck_access_logs_access_type
+                        CHECK (access_type IN ('entry', 'exit'))
+                )
+                """)
+
+            valid_uuid = str(uuid.uuid4())
+            connection.execute(
+                """
+                INSERT INTO users (uuid, name, email, is_active, created_at)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    valid_uuid,
+                    "Legacy User",
+                    "legacy@example.com",
+                    1,
+                    "2024-01-01 00:00:00",
+                ),
+            )
+            connection.execute(
+                """
+                INSERT INTO access_logs (user_uuid, access_type, timestamp)
+                VALUES (?, ?, ?)
+                """,
+                (valid_uuid, "entry", "2024-01-01 01:00:00"),
+            )
+            connection.execute(
+                """
+                INSERT INTO access_logs (user_uuid, access_type, timestamp)
+                VALUES (?, ?, ?)
+                """,
+                (str(uuid.uuid4()), "exit", "2024-01-01 02:00:00"),
+            )
+            connection.commit()
+
+        init_database()
+
+        with sqlite3.connect(self.temp_db.name) as connection:
+            fk_rows = connection.execute(
+                "PRAGMA foreign_key_list(access_logs)"
+            ).fetchall()
+            access_logs = connection.execute(
+                "SELECT user_uuid, access_type FROM access_logs ORDER BY id"
+            ).fetchall()
+
+        assert any(
+            row[2] == "users" and row[3] == "user_uuid" and row[4] == "uuid"
+            for row in fk_rows
+        )
+        assert access_logs == [(valid_uuid, "entry")]

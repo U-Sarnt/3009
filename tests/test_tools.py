@@ -13,7 +13,13 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from core.config import Config
-from core.database import AccessLog, User, get_session, init_database, reset_database_engine
+from core.database import (
+    AccessLog,
+    User,
+    get_session,
+    init_database,
+    reset_database_engine,
+)
 from tools.backup_db import create_backup, verify_backup_integrity
 from tools.export_logs import export_logs
 
@@ -50,7 +56,9 @@ class TestTools:
 
         session = get_session()
         try:
-            user = User(uuid=str(uuid.uuid4()), name="Tools User", email="tools@example.com")
+            user = User(
+                uuid=str(uuid.uuid4()), name="Tools User", email="tools@example.com"
+            )
             session.add(user)
             session.flush()
             session.add(AccessLog(user_uuid=user.uuid, access_type="entry"))

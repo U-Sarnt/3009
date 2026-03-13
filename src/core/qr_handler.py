@@ -30,7 +30,9 @@ def _sign_payload(payload_bytes: bytes, secret: str) -> str:
 
 def _verify_signature(payload_bytes: bytes, signature_b64: str, secret: str) -> bool:
     try:
-        expected = hmac.new(secret.encode("utf-8"), payload_bytes, hashlib.sha256).digest()
+        expected = hmac.new(
+            secret.encode("utf-8"), payload_bytes, hashlib.sha256
+        ).digest()
         received = _b64_decode(signature_b64)
         return hmac.compare_digest(expected, received)
     except Exception:
@@ -56,7 +58,9 @@ class QRHandler:
     REQUIRED_FIELDS = ("uuid", "name", "email")
 
     @staticmethod
-    def build_payload(user_uuid: str, name: str, email: str, **extra: Any) -> Dict[str, Any]:
+    def build_payload(
+        user_uuid: str, name: str, email: str, **extra: Any
+    ) -> Dict[str, Any]:
         payload = {
             "uuid": user_uuid,
             "name": name,

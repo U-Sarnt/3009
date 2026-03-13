@@ -49,7 +49,9 @@ def main() -> int:
             return 1
 
         payload = QRHandler.build_payload(user.uuid, user.name, user.email)
-        qr_path, _ = QRHandler.generate_qr_file(payload, filename_prefix=f"qr_{user.name}")
+        qr_path, _ = QRHandler.generate_qr_file(
+            payload, filename_prefix=f"qr_{user.name}"
+        )
         print(f"QR generado para: {user.name}")
         print(f"Guardado en: {qr_path}")
         return 0
