@@ -35,7 +35,9 @@ class TestQRHandler:
         qr_text = QRHandler.encode_payload(
             QRHandler.build_payload("test-uuid", "Test User", "test@example.com")
         )
-        tampered = qr_text[:-1] + ("A" if qr_text[-1] != "A" else "B")
+        payload_b64, signature = qr_text.split(".", 1)
+        tampered_signature = ("A" if signature[0] != "A" else "B") + signature[1:]
+        tampered = f"{payload_b64}.{tampered_signature}"
 
         is_valid, data = QRHandler.validate_qr_data(tampered)
 
