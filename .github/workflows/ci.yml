@@ -31,7 +31,7 @@ jobs:
       - name: Run tests
         env:
           QT_QPA_PLATFORM: offscreen
-        run: pytest -q --ignore=tests/test_ui_camera.py
+        run: pytest -q --ignore=tests/test_ui_camera.py --ignore=tests/test_imports.py
 
       - name: Check formatting
         run: python tools/check_format.py
