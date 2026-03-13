@@ -21,7 +21,10 @@ def sanitize_filename(value: str, replacement: str = "_") -> str:
 def open_in_file_manager(target: Union[str, Path]) -> bool:
     """Open a path or its parent folder using the platform file manager."""
     path = Path(target)
-    folder = path if path.exists() and path.is_dir() else path.parent
+    if not path.exists():
+        return False
+
+    folder = path.parent if path.is_file() else path
 
     if not folder.exists() or not folder.is_dir():
         return False
