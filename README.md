@@ -1,5 +1,10 @@
 # U-Sarnt QR Access Control
 
+![CI](https://github.com/U-Sarnt/3009/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-lightgrey)
+![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green?logo=opencv&logoColor=white)
+
 Official repository of **U-Sarnt** for project `3009`.
 
 Repositorio oficial de **U-Sarnt** para el proyecto `3009`.
