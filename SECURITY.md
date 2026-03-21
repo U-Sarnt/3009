@@ -2,11 +2,15 @@
 
 ## English
 
-If you discover a security issue in this repository:
+If you discover a security issue in this repository, please report it **privately** by emailing **u.sarnt@proton.me** — do not open a public issue with exploit or attack details.
 
-1. Do not publish exploits, secrets or attack details in a public issue.
-2. Report the issue privately to the repository owner or maintainer.
-3. Include reproduction steps, affected area and impact if known.
+Include in your report:
+
+1. Reproduction steps and affected area.
+2. Impact assessment if known.
+3. Any proof-of-concept needed to validate the report safely.
+
+You will receive a response within 72 hours.
 
 Security-sensitive material that should never be committed:
 
@@ -18,13 +22,19 @@ Security-sensitive material that should never be committed:
 
 This repository already excludes common runtime artifacts through [`.gitignore`](.gitignore), but contributors remain responsible for reviewing their changes before pushing.
 
+---
+
 ## Español
 
-Si descubres un problema de seguridad en este repositorio:
+Si descubres un problema de seguridad en este repositorio, repórtalo **de forma privada** enviando un correo a **u.sarnt@proton.me** — no abras un issue público con detalles del exploit o del ataque.
 
-1. No publiques exploits, secretos ni detalles del ataque en un issue público.
-2. Repórtalo de forma privada al propietario o mantenedor del repositorio.
-3. Incluye pasos de reproducción, área afectada e impacto si lo conoces.
+Incluye en tu reporte:
+
+1. Pasos de reproducción y área afectada.
+2. Evaluación del impacto si lo conoces.
+3. Prueba de concepto necesaria para validar el reporte de forma segura.
+
+Recibirás respuesta en un plazo de 72 horas.
 
 Material sensible que nunca debe subirse al repositorio:
 
